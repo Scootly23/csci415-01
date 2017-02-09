@@ -4,6 +4,7 @@
 // Spring 2017
 // Name(s): Scott St. Amant, Micah Schmit
 //
+// Come basic CUDA implementation derived from the add_vectors.cu example from class 
 // Sine implementation derived from slides here: http://15418.courses.cs.cmu.edu/spring2016/lecture/basicarch
 
 
