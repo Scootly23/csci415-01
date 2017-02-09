@@ -1,0 +1,37 @@
+sstamant@titan:~$ ./parallelSine
+
+CPU Run Time: 0.38176 sec
+
+GPU memory allocation: 0.11347 sec
+
+Kernel execution: 4.3e-05 sec
+
+Copying results from GPU: 0.01326 sec
+
+Total GPU Runtime: 0.1342 sec
+Result comparison passed.
+sstamant@titan:~$ ./parallelSine
+
+CPU Run Time: 0.38165 sec
+
+GPU memory allocation: 0.11381 sec
+
+Kernel execution: 4.3e-05 sec
+
+Copying results from GPU: 0.013084 sec
+
+Total GPU Runtime: 0.13457 sec
+Result comparison passed.
+sstamant@titan:~$ ./parallelSine
+
+CPU Run Time: 0.38203 sec
+
+GPU memory allocation: 0.092749 sec
+
+Kernel execution: 4.2e-05 sec
+
+Copying results from GPU: 0.013525 sec
+
+Total GPU Runtime: 0.11354 sec
+Result comparison passed.
+sstamant@titan:~$ 

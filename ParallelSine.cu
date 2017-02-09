@@ -48,9 +48,7 @@ void sine_serial(float *input, float *output)
 // kernel function (CUDA device)
 // TODO: Implement your graphics kernel here. See assignment instructions for method information
 __global__ void sine_parallel(float *input, float *output) {
-  int block_id = blockIdx.x + gridDim.x * blockIdx.y;
-	int thread_id = blockDim.x * block_id + threadIdx.x;
-  printf("%d\n",thread_id);
+	int thread_id = blockDim.x * blockIdx.x + threadIdx.x;
    if(thread_id < N){
        float value = input[thread_id]; 
        float numer = input[thread_id] * input[thread_id] * input[thread_id]; 
@@ -64,7 +62,6 @@ __global__ void sine_parallel(float *input, float *output) {
           sign *= -1; 
          } 
        output[thread_id] = value;
-       printf("Output: %d\n",output[thread_id]); 
   }
 
 
@@ -137,30 +134,30 @@ int main (int argc, char **argv)
 
 
   //TODO: Prepare and run your kernel, make sure to copy your results back into h_gpu_result and display your timing results
+  long long gpu_total_start = start_timer();  
   float *h_gpu_result = (float*)malloc(N*sizeof(float));
 
   int vector_size = N * sizeof(float);
-	float *d_input, *d_output;
+	float *d_input;
+  float *d_output;
+
+  long long gpu_mem_start = start_timer();  
   cudaMalloc((void **) &d_input, vector_size);
 	cudaMalloc((void **) &d_output, vector_size);
-	// if (cudaMalloc((void **) &d_input, vector_size) != cudaSuccess) die("Error allocating GPU memory");
-	// if (cudaMalloc((void **) &d_output, vector_size) != cudaSuccess) die("Error allocating GPU memory");
-	
+	stop_timer(gpu_mem_start, "\nGPU memory allocation");
 	// Transfer the input vectors to GPU memory
 	cudaMemcpy(d_input, h_input, vector_size, cudaMemcpyHostToDevice);
-  int num_blocks = (int) ((float) (N + threads_per_block - 1) / (float) threads_per_block);
-	int max_blocks_per_dimension = 65535;
-	int num_blocks_y = (int) ((float) (num_blocks + max_blocks_per_dimension - 1) / (float) max_blocks_per_dimension);
-	int num_blocks_x = (int) ((float) (num_blocks + num_blocks_y - 1) / (float) num_blocks_y);
-	dim3 grid_size(num_blocks_x, num_blocks_y, 1);
-  //long long kernal_start_timer = start_timer();
-  sine_parallel <<< grid_size, threads_per_block >>> (h_input, h_gpu_result);
-  //stop_timer(kernal_start_timer, "\t Kernel execution");
+  long long kernal_start_timer = start_timer();
+  sine_parallel<<<48226,threads_per_block>>>(d_input, d_output);
+  stop_timer(kernal_start_timer, "\nKernel execution");
 
-  checkErrors((char*)'k');
+  long long gpu_mem_copy = start_timer();
   cudaMemcpy(h_gpu_result, d_output, vector_size, cudaMemcpyDeviceToHost);
+  stop_timer(gpu_mem_copy, "\nCopying results from GPU");
+  cudaThreadSynchronize();
   cudaFree(d_output);
   cudaFree(d_input);
+  stop_timer(gpu_total_start,"\nTotal GPU Runtime");
 
   // Checking to make sure the CPU and GPU results match - Do not modify
   int errorCount = 0;
